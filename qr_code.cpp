@@ -47,171 +47,107 @@ void printqrcode(const vector<vector<int>> *qrcode_ptr, const int n)
     cout << "+" << endl;
 }
 
-bool checklinhas(const vector<vector<int>> &qrcode, const int n, const vector<int> &lb)
+bool check(vector<vector<int>> &qrcode, const int n, const vector<int> &linhas, const vector<int> &colunas, const vector<int> &diagonais, const vector<int> &quadrants, const vector<int> &lt, const vector<int> &ct)
 {
-    int count = 0;
 
-    //
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if (qrcode[i][j] == 1)
-            {
-                count++;
-            }
-        }
-
-        if (count != lb[i])
-        {
-            return false;
-        }
-
-        count = 0;
-    }
-    return true;
-}
-
-bool checkcolunas(const vector<vector<int>> &qrcode, const int n, const vector<int> &cb)
-{
-    int count = 0;
-
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if (qrcode[j][i] == 1)
-            {
-                count++;
-            }
-        }
-
-        if (count != cb[i])
-        {
-            return false;
-        }
-
-        count = 0;
-    }
-
-    return true;
-}
-
-bool check_transicoes(const vector<vector<int>> &qrcode, const int n, const vector<int> &lt, const vector<int> &ct)
-{
+    int line = 0;
+    int column = 0;
+    int diagonal = 0;
+    int inversediagonal = 0;
+    int quadrantsEqual[4] = {0, 0, 0, 0};
     int rowTransitions = 0;
     int colTransitions = 0;
 
-    for (int i = 0; i < n; ++i)
+    int flor = floor(n / 2);
+
+    for (int i = 0; i < n; i++)
     {
-        int rowPrev = qrcode[i][0];
-        int colPrev = qrcode[0][i];
-        for (int j = 1; j < n; ++j)
+
+        int valorLinha = qrcode[i][0];
+        rowTransitions = 0;
+        int valorColuna = qrcode[0][i];
+        colTransitions = 0;
+
+        for (int j = 0; j < n; j++)
         {
-            if (qrcode[i][j] != rowPrev)
+
+            if (qrcode[i][j] == 1)
             {
-                ++rowTransitions;
-                rowPrev = qrcode[i][j];
+                line++;
             }
-            if (qrcode[j][i] != colPrev)
+            if (qrcode[j][i] == 1)
             {
-                ++colTransitions;
-                colPrev = qrcode[j][i];
+                column++;
             }
+
+            if (i == j && qrcode[i][j] == 1)
+            {
+                diagonal++;
+            }
+
+            if (n - 1 == j + i && qrcode[i][j] == 1)
+            {
+                inversediagonal++;
+            }
+
+            if (qrcode[i][j] != valorLinha)
+            {
+                rowTransitions++;
+            }
+
+            if (qrcode[j][i] != valorColuna)
+            {
+                colTransitions++;
+            }
+
+            if (i < flor && j >= flor && qrcode[i][j] == 1)
+            {
+                quadrantsEqual[0]++;
+            }
+
+            else if (i < flor && j < flor && qrcode[i][j] == 1)
+            {
+                quadrantsEqual[1]++;
+            }
+
+            else if (i >= flor && j < flor && qrcode[i][j] == 1)
+            {
+                quadrantsEqual[2]++;
+            }
+
+            else if (i >= flor && j >= flor && qrcode[i][j] == 1)
+            {
+                quadrantsEqual[3]++;
+            }
+
+            valorColuna = qrcode[j][i];
+            valorLinha = qrcode[i][j];
         }
-        // std::cout << "rowTransitions: " << rowTransitions << std::endl;
-        // std::cout << "colTransitions: " << colTransitions << std::endl;
-        if (rowTransitions != lt[i] || colTransitions != ct[i])
+
+        if (line != linhas[i] || column != colunas[i] || rowTransitions != lt[i] || colTransitions != ct[i])
+        {
+            // std::cout << "Erro nas transicoes" << std::endl;
+            return false;
+        }
+
+        line = 0;
+        column = 0;
+    }
+
+    if (diagonal != diagonais[0] || inversediagonal != diagonais[1])
+    {
+        return false;
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (quadrantsEqual[i] != quadrants[i])
         {
             return false;
         }
-        rowTransitions = 0;
-        colTransitions = 0;
-    }
-    return true;
-}
-
-bool checkquadrante(const vector<vector<int>> &qrcode, const int n, const vector<int> &qb)
-{
-    int count = 0;
-    int count2 = 0;
-    int count3 = 0;
-    int count4 = 0;
-
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if (i < floor(n / 2) && j >= floor(n / 2) && qrcode[i][j] == 1)
-            {
-                count++;
-            }
-            if (i < floor(n / 2) && j < floor(n / 2) && qrcode[i][j] == 1)
-            {
-                count2++;
-            }
-            if (i >= floor(n / 2) && j < floor(n / 2) && qrcode[i][j] == 1)
-            {
-                count3++;
-            }
-            if (i >= floor(n / 2) && j >= floor(n / 2) && qrcode[i][j] == 1)
-            {
-                count4++;
-            }
-        }
-    }
-
-    if (count != qb[0] || count2 != qb[1] || count3 != qb[2] || count4 != qb[3])
-    {
-        return false;
     }
 
     return true;
-}
-
-bool checkdiagonais(const vector<vector<int>> &qrcode, const int n, const vector<int> &db)
-{
-    int count = 0;  // diagonal principal
-    int count2 = 0; // anti-diagonal
-
-    // Anti-diagonal
-    for (int i = 0; i < n; i++)
-    {
-        count2 += qrcode[i][n - i - 1];
-        count += qrcode[i][i];
-    }
-
-    if (count != db[0] || count2 != db[1])
-    {
-        return false;
-    }
-
-    return true;
-}
-
-bool check(const vector<vector<int>> &qrcode, const int n, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db)
-{
-    if (checklinhas(qrcode, n, lb) && checkcolunas(qrcode, n, cb) && check_transicoes(qrcode, n, lt, ct) && checkquadrante(qrcode, n, qb) && checkdiagonais(qrcode, n, db))
-    {
-        return true;
-    }
-    return false;
-}
-
-int blackCells(const vector<vector<int>> &qrcode, const int n)
-{
-    int count = 0;
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if (qrcode[i][j] == 1)
-            {
-                count++;
-            }
-        }
-    }
-    return count;
 }
 
 // i is the row and j is the column
@@ -220,12 +156,10 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     // if the board is full, check if it is a solution and print it if it is
     if (i == n)
     {
-        if (check(qrcode, n, lb, cb, lt, ct, qb, db))
+        if (check(qrcode, n, lb, cb, db, qb, lt, ct))
         {
             GLOBAL++;
-            // Create a pointer to the qrcode variable
             qrcode_ptr = qrcode;
-            // printqrcode(qrcode, n);
         }
         return;
     }
@@ -245,16 +179,58 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db);
 }
 
+bool preprocessamento(const int n, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db, int &test_linha, int &test_coluna, int &test_quadrante)
+{
+    if (test_linha != test_coluna || test_linha != test_quadrante || test_coluna != test_quadrante)
+    {
+        cout << "DEFECT: No QR Code generated!" << endl;
+        return false;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        if (lb[i] > n || cb[i] > n || lt[i] > n || ct[i] > n)
+        {
+            cout << "DEFECT: No QR Code generated!" << endl;
+            return false;
+        }
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (qb[i] > n)
+        {
+            cout << "DEFECT: No QR Code generated!" << endl;
+            return false;
+        }
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        if (db[i] > n)
+        {
+            cout << "DEFECT: No QR Code generated!" << endl;
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int main()
 {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
 
     // redireciona a entrada para um arquivo
-    // freopen("input.txt", "r", stdin);
+    // freopen("testes\\test_help_enunciado1.in", "r", stdin);
 
     int T;
     cin >> T;
+
+    int test_linha = 0;
+    int test_coluna = 0;
+    int test_quadrante = 0;
 
     while (T--)
     {
@@ -273,18 +249,17 @@ int main()
         // lb
         for (int i = 0; i < N; i++)
         {
-            // cin >> numero;
-            // lb[i] = numero;
             cin >> lb[i];
+            test_linha += lb[i];
         }
 
         // cb
         for (int i = 0; i < N; i++)
         {
             cin >> cb[i];
+            test_coluna += cb[i];
         }
 
-        // lt
         for (int i = 0; i < N; i++)
         {
             cin >> lt[i];
@@ -296,39 +271,45 @@ int main()
             cin >> ct[i];
         }
 
-        // db
+        // qb
         for (int i = 0; i < 4; i++)
         {
             cin >> qb[i];
+            test_quadrante += qb[i];
         }
 
-        // qb
+        // db
         for (int i = 0; i < 2; i++)
         {
             cin >> db[i];
         }
 
-        geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db);
+        if (preprocessamento(N, lb, cb, lt, ct, qb, db, test_linha, test_coluna, test_quadrante))
+        {
 
-        if (GLOBAL == 1)
-        {
-            cout << "VALID: 1 QR Code generated!" << endl;
-            printqrcode(&qrcode_ptr, N);
-        }
-        else if (GLOBAL > 1)
-        {
-            cout << "INVALID: " << GLOBAL << " QR Codes generated!" << endl;
-        }
-        else if (GLOBAL == 0)
-        {
-            cout << "DEFECT: No QR Code generated!" << endl;
+            geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db);
+
+            if (GLOBAL == 1)
+            {
+                cout << "VALID: 1 QR Code generated!" << endl;
+                printqrcode(&qrcode_ptr, N);
+            }
+            else if (GLOBAL > 1)
+            {
+                cout << "INVALID: " << GLOBAL << " QR Codes generated!" << endl;
+            }
+            else if (GLOBAL == 0)
+            {
+                cout << "DEFECT: No QR Code generated!" << endl;
+            }
         }
         GLOBAL = 0;
+        test_coluna = 0;
+        test_linha = 0;
+        test_quadrante = 0;
     }
-
-    // std::cout << GLOBAL << std::endl;
 
     return 0;
 }
 
-// Run : g++ qr_code.cpp -o qrcode; ./qrcode
+// Run : g++ qr_code.cpp -o qr_code; ./qr_code
