@@ -155,42 +155,6 @@ bool check(vector<vector<int>> &qrcode, const int n, const vector<int> &linhas, 
     return true;
 }
 
-void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db)
-{
-    // if the board is full, check if it is a solution and print it if it is
-    if (i == n)
-    {
-        if (check(qrcode, n, lb, cb, db, qb, lt, ct))
-        {
-            GLOBAL++;
-            qrcode_ptr = qrcode;
-        }
-        return;
-    }
-
-    // if the row is full, go to the next row
-    if (j == n)
-    {
-        geraqrcode(qrcode, n, i + 1, 0, lb, cb, lt, ct, qb, db);
-        return;
-    }
-
-    // only change the cell if it is equal to -1
-    if (qrcode.at(i).at(j) == -1)
-    {
-        qrcode.at(i).at(j) = 1;
-        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db);
-        qrcode.at(i).at(j) = 0;
-        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db);
-        qrcode.at(i).at(j) = -1;
-    }
-    else
-    {
-        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db);
-    }
-    NUM_CELULAS_PROCESSADAS++;
-}
-
 void fill_line(vector<vector<int>> &v, const int n, const int line, const int value)
 {
     for (int i = 0; i < n; i++)
@@ -557,6 +521,17 @@ bool preprocessamento(const int n, const vector<int> &lb, const vector<int> &cb,
             cout << "DEFECT: No QR Code generated!" << endl;
             return false;
         }
+        //  if the number line transitions is greater than the number of black cells in the line + 1
+        if (lb[i] == 0 && lt[i] != 0)
+        {
+            cout << "DEFECT: No QR Code generated!" << endl;
+            return false;
+        }
+        if (cb[i] == 0 && ct[i] != 0)
+        {
+            cout << "DEFECT: No QR Code generated!" << endl;
+            return false;
+        }
     }
 
     for (int i = 0; i < 4; i++)
@@ -577,7 +552,92 @@ bool preprocessamento(const int n, const vector<int> &lb, const vector<int> &cb,
         }
     }
 
+    // Look for impossible cases
+    // The sum of the first n/2 lines must be equal to the sum of the first 2 quadrants
+
+    int sum = 0;
+    for (int i = 0; i < n / 2; i++)
+    {
+        sum += lb[i];
+    }
+
+    if (sum != qb[0] + qb[1])
+    {
+        cout << "DEFECT: No QR Code generated!" << endl;
+        return false;
+    }
+
+    // The sum of the last n/2 lines must be equal to the sum of the last 2 quadrants
+    sum = 0;
+    for (int i = n / 2; i < n; i++)
+    {
+        sum += lb[i];
+    }
+
+    if (sum != qb[2] + qb[3])
+    {
+        cout << "DEFECT: No QR Code generated!" << endl;
+        return false;
+    }
+
     return true;
+}
+
+void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db, int num_ones, int num_zeros)
+{
+    // if the board is full, check if it is a solution and print it if it is
+    if (i == n)
+    {
+        if (check(qrcode, n, lb, cb, db, qb, lt, ct))
+        {
+            GLOBAL++;
+            qrcode_ptr = qrcode;
+        }
+        return;
+    }
+
+    // if the row is full, go to the next row
+    if (j == n)
+    {
+        geraqrcode(qrcode, n, i + 1, 0, lb, cb, lt, ct, qb, db, num_ones, num_zeros);
+        return;
+    }
+
+    // only change the cell if it is equal to -1
+    if (qrcode.at(i).at(j) == -1)
+    {
+        // If we already have the maximum number of 1's in the row, we can only put 0's
+        if (num_ones == lt[i])
+        {
+            qrcode.at(i).at(j) = 0;
+            geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, num_ones, num_zeros + 1);
+            qrcode.at(i).at(j) = -1;
+            return;
+        }
+
+        // If we already have the maximum number of 0's in the row, we can only put 1's
+
+        if (num_zeros == ct[i])
+        {
+            qrcode.at(i).at(j) = 1;
+            geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, num_ones + 1, num_zeros);
+            qrcode.at(i).at(j) = -1;
+            return;
+        }
+
+        // If we don't have the maximum number of 1's or 0's in the row, we can put both
+
+        qrcode.at(i).at(j) = 1;
+        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, num_ones, num_zeros);
+        qrcode.at(i).at(j) = 0;
+        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, num_ones, num_zeros);
+        qrcode.at(i).at(j) = -1;
+    }
+    else
+    {
+        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, num_ones, num_zeros);
+    }
+    NUM_CELULAS_PROCESSADAS++;
 }
 
 int main()
@@ -586,10 +646,10 @@ int main()
     cin.tie(0);
 
     // redireciona a entrada para um arquivo
-    freopen("testes\\test_help_1.in", "r", stdin);
+    // freopen("testes\\test_help_1.in", "r", stdin);
     // freopen("teste.in", "r", stdin);
     // freopen("testes\\test_help_enunciado1.in", "r", stdin);
-    // freopen("testes\\test_help_2.in", "r", stdin);
+    freopen("testes\\test_help_3.in", "r", stdin);
 
     int T;
     cin >> T;
@@ -609,6 +669,8 @@ int main()
         vector<int> ct(N);
         vector<int> qb(4);
         vector<int> db(2);
+        int num_ones = 0;
+        int num_zeros = 0;
 
         vector<vector<int>> qrcode(N, vector<int>(N, -1));
 
@@ -654,7 +716,7 @@ int main()
             if (!preprocess(qrcode, N, lb, cb, lt, ct, qb, db))
             {
                 // printqrcode(&qrcode, N);
-                geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db);
+                geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db, num_ones, num_zeros);
             }
             // preprocess(qrcode, N, lb, cb, lt, ct, qb, db);
             // printqrcode(&qrcode, N);
