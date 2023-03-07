@@ -521,7 +521,7 @@ bool preprocessamento(const int n, const vector<int> &lb, const vector<int> &cb,
             cout << "DEFECT: No QR Code generated!" << endl;
             return false;
         }
-        //  if the number line transitions is greater than the number of black cells in the line + 1
+
         if (lb[i] == 0 && lt[i] != 0)
         {
             cout << "DEFECT: No QR Code generated!" << endl;
@@ -553,7 +553,6 @@ bool preprocessamento(const int n, const vector<int> &lb, const vector<int> &cb,
     }
 
     // Look for impossible cases
-    // The sum of the first n/2 lines must be equal to the sum of the first 2 quadrants
 
     int sum = 0;
     for (int i = 0; i < n / 2; i++)
@@ -567,7 +566,6 @@ bool preprocessamento(const int n, const vector<int> &lb, const vector<int> &cb,
         return false;
     }
 
-    // The sum of the last n/2 lines must be equal to the sum of the last 2 quadrants
     sum = 0;
     for (int i = n / 2; i < n; i++)
     {
@@ -606,27 +604,6 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     // only change the cell if it is equal to -1
     if (qrcode.at(i).at(j) == -1)
     {
-        // If we already have the maximum number of 1's in the row, we can only put 0's
-        if (num_ones == lt[i])
-        {
-            qrcode.at(i).at(j) = 0;
-            geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, num_ones, num_zeros + 1);
-            qrcode.at(i).at(j) = -1;
-            return;
-        }
-
-        // If we already have the maximum number of 0's in the row, we can only put 1's
-
-        if (num_zeros == ct[i])
-        {
-            qrcode.at(i).at(j) = 1;
-            geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, num_ones + 1, num_zeros);
-            qrcode.at(i).at(j) = -1;
-            return;
-        }
-
-        // If we don't have the maximum number of 1's or 0's in the row, we can put both
-
         qrcode.at(i).at(j) = 1;
         geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, num_ones, num_zeros);
         qrcode.at(i).at(j) = 0;
@@ -649,7 +626,7 @@ int main()
     // freopen("testes\\test_help_1.in", "r", stdin);
     // freopen("teste.in", "r", stdin);
     // freopen("testes\\test_help_enunciado1.in", "r", stdin);
-    freopen("testes\\test_help_3.in", "r", stdin);
+    // freopen("testes\\test_help_3.in", "r", stdin);
 
     int T;
     cin >> T;
