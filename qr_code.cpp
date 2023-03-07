@@ -10,51 +10,6 @@ int GLOBAL = 0;
 
 vector<vector<int>> qrcode_ptr;
 
-int count_line_transicoes(const vector<vector<int>> &qrcode, const int n, const vector<int> &lt, const vector<int> &ct, int linha)
-{
-    int rowTransitions = 0;
-    int valorLinha = qrcode[linha][0];
-    for (int j = 0; j < n; j++)
-    {
-        if (qrcode[linha][j] != valorLinha)
-        {
-            rowTransitions++;
-            valorLinha = qrcode[linha][j];
-        }
-    }
-    return rowTransitions;
-}
-
-int count_col_transicoes(const vector<vector<int>> &qrcode, const int n, const vector<int> &lt, const vector<int> &ct, int coluna)
-{
-    int colTransitions = 0;
-    int valorColuna = qrcode[0][coluna];
-    for (int j = 0; j < n; j++)
-    {
-        if (qrcode[j][coluna] != valorColuna)
-        {
-            colTransitions++;
-            valorColuna = qrcode[j][coluna];
-        }
-    }
-    return colTransitions;
-}
-
-void print_2darray(const vector<vector<int>> &v, const int n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            if (v[i][j] == -1)
-                cout << "x ";
-            else
-                cout << v[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-
 void printqrcode(const vector<vector<int>> *qrcode_ptr, const int n)
 {
     // make the boarder of the board with + in the corners and - in the sides
@@ -81,7 +36,7 @@ void printqrcode(const vector<vector<int>> *qrcode_ptr, const int n)
             }
             else
             {
-                cout << "x";
+                cout << "?";
             }
         }
         cout << "|" << endl;
@@ -245,21 +200,6 @@ void fill_line(vector<vector<int>> &v, const int n, const int line, const int va
     }
 }
 
-void fill_line2(vector<vector<int>> &v, const int n, const int line)
-{
-    for (int i = 0; i < n - 1; i++)
-    {
-        if (v[line][i] == -1)
-        {
-            // Fill the oposite value of the previous cell
-            if (v[line][i - 1] == 1)
-                v[line][i] = 0;
-            else if (v[line][i - 1] == 0)
-                v[line][i] = 1;
-        }
-    }
-}
-
 void fill_collumn(vector<vector<int>> &v, const int n, const int collumn, const int value)
 {
     for (int i = 0; i < n; i++)
@@ -338,29 +278,160 @@ void fill_quadrant(vector<vector<int>> &v, const int n, const int quadrant, cons
     }
 }
 
-// Pair retuning function to get the first cell != -1 in a specific line
-pair<int, int> get_first_cell_line(const vector<vector<int>> &v, const int n, const int line)
+void verifica_linhas(vector<vector<int>> &v, int n, int linha_total, int linha)
 {
+    int count = 0;
     for (int i = 0; i < n; i++)
     {
-        if (v[line][i] != -1)
+        if (v[linha][i] == 1)
         {
-            return make_pair(line, i);
+            count++;
+        }
+
+        if (linha_total == count)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (v[linha][j] == -1)
+                {
+                    v[linha][j] = 0;
+                }
+            }
         }
     }
-    return make_pair(-1, -1);
 }
 
-pair<int, int> get_first_cell_collumn(const vector<vector<int>> &v, const int n, const int collumn)
+void verifica_colunas(vector<vector<int>> &v, int n, int coluna_total, int coluna)
 {
+    int count = 0;
     for (int i = 0; i < n; i++)
     {
-        if (v[i][collumn] != -1)
+        if (v[i][coluna] == 1)
         {
-            return make_pair(i, collumn);
+            count++;
+        }
+
+        if (coluna_total == count)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (v[j][coluna] == -1)
+                {
+                    v[j][coluna] = 0;
+                }
+            }
         }
     }
-    return make_pair(-1, -1);
+}
+
+void verifica_quadrantes(vector<vector<int>> &v, int n, const vector<int> &quadrante_total)
+{
+    int count1 = 0;
+    int count2 = 0;
+    int count3 = 0;
+    int count4 = 0;
+    int flor = n / 2;
+
+    // quadrant 1 if l <= floor(N/2) and c > floor(N/2)
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = flor; j < n; j++)
+        {
+            if (i <= flor && j > flor)
+            {
+                if (v[i][j] == 1)
+                {
+                    count1++;
+                }
+            }
+            if (i <= flor && j <= flor)
+            {
+                if (v[i][j] == 1)
+                {
+                    count2++;
+                }
+            }
+            if (i > flor && j <= flor)
+            {
+                if (v[i][j] == 1)
+                {
+                    count3++;
+                }
+            }
+            if (i > flor && j > flor)
+            {
+                if (v[i][j] == 1)
+                {
+                    count4++;
+                }
+            }
+        }
+    }
+
+    if (quadrante_total[0] == count1)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (i <= flor && j > flor)
+                {
+                    if (v[i][j] == -11)
+                    {
+                        v[i][j] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    if (quadrante_total[1] == count2)
+    {
+        for (int i = 0; i < flor; i++)
+        {
+            for (int j = 0; j < flor; j++)
+            {
+                if (v[i][j] == -1)
+                {
+                    v[i][j] = 0;
+                }
+            }
+        }
+    }
+
+    if (quadrante_total[2] == count3)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (i > flor && j <= flor)
+                {
+                    if (v[i][j] == -1)
+                    {
+                        v[i][j] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    if (quadrante_total[3] == count4)
+    {
+        for (int i = flor; i < n; i++)
+        {
+            for (int j = flor; j < n; j++)
+            {
+                if (i > flor && j > flor)
+                {
+                    if (v[i][j] == 1)
+                    {
+                        v[i][j] = 0;
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool preprocess(vector<vector<int>> &v, const int n, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db)
@@ -424,7 +495,8 @@ bool preprocess(vector<vector<int>> &v, const int n, const vector<int> &lb, cons
             // Fill all the quadrant with 0
             fill_quadrant(v, n, i, 0);
         }
-        else if (qb[i] == n)
+        // if qb[i] == floor(n/2 +1)^2
+        else if (qb[i] == (floor(n / 2 + 1) * floor(n / 2 + 1)))
         {
             // Fill all the quadrant with 1
             fill_quadrant(v, n, i, 1);
@@ -433,14 +505,16 @@ bool preprocess(vector<vector<int>> &v, const int n, const vector<int> &lb, cons
 
     for (int i = 0; i < n; i++)
     {
-        // Check the line transictions
-        int rowTransitions = count_line_transicoes(v, n, lt, ct, i);
-        if (rowTransitions == lt[i])
-        {
-            // Fill the rest of the line the opposite value the previous cell
-            fill_line2(v, n, i);
-        }
+        verifica_linhas(v, n, lb[i], i);
     }
+
+    for (int i = 0; i < n; i++)
+    {
+        verifica_colunas(v, n, cb[i], i);
+    }
+
+    // qb
+    verifica_quadrantes(v, n, qb);
 
     // Check if the qr_code is full and if it is valid
     bool flag = 0;
@@ -512,8 +586,10 @@ int main()
     cin.tie(0);
 
     // redireciona a entrada para um arquivo
+    freopen("testes\\test_help_1.in", "r", stdin);
+    // freopen("teste.in", "r", stdin);
     // freopen("testes\\test_help_enunciado1.in", "r", stdin);
-    freopen("teste.in", "r", stdin);
+    // freopen("testes\\test_help_2.in", "r", stdin);
 
     int T;
     cin >> T;
@@ -577,8 +653,8 @@ int main()
         {
             if (!preprocess(qrcode, N, lb, cb, lt, ct, qb, db))
             {
-                printqrcode(&qrcode, N);
-                // geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db);
+                // printqrcode(&qrcode, N);
+                geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db);
             }
             // preprocess(qrcode, N, lb, cb, lt, ct, qb, db);
             // printqrcode(&qrcode, N);
