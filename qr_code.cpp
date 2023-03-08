@@ -761,6 +761,37 @@ int countTransitionsCol(vector<vector<int>> matrix, int col)
     return count;
 }
 
+// Function to count the number of black cells in a given row
+int count_black_cells_row(const vector<vector<int>> &qrcode, const int n, const int row)
+{
+    int sum_black = 0;
+
+    for (int j = 0; j < n; j++)
+    {
+        if (qrcode[row][j] == 1)
+        {
+            sum_black++;
+        }
+    }
+
+    return sum_black;
+}
+
+int count_black_cells_col(const vector<vector<int>> &qrcode, const int n, const int col)
+{
+    int sum_black = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (qrcode[i][col] == 1)
+        {
+            sum_black++;
+        }
+    }
+
+    return sum_black;
+}
+
 void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db, int sum_black_total)
 {
     // Print the qrcode so far
@@ -783,6 +814,13 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     if (j == n)
     {
         geraqrcode(qrcode, n, i + 1, 0, lb, cb, lt, ct, qb, db, sum_black_total);
+        return;
+    }
+
+    // If if the line i-1 has the right number of black cells
+
+    if (i > 0 && count_black_cells_row(qrcode, n, i - 1) != lb[i - 1])
+    {
         return;
     }
 
@@ -825,57 +863,62 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         return;
     }
 
-    // If we already passed the first quadrant, check if the number of black cells in the first quadrant is equal to the number of black cells in the qb[0]
-    if (i >= n / 2 && j >= n / 2)
-    {
-        int sum_black_first_q = count_black_cells_first_q(qrcode, n);
-        if (sum_black_first_q > qb[0])
-        {
-            return;
-        }
-    }
-
     // If we already passed the second quadrant, check if the number of black cells in the second quadrant is equal to the number of black cells in the qb[1]
-    if (i >= n / 2 && j < n / 2)
+    if (i > n / 2)
     {
         int sum_black_second_q = count_black_cells_second_q(qrcode, n);
-        if (sum_black_second_q > qb[1])
+        if (sum_black_second_q != qb[1])
         {
             return;
         }
     }
 
-    // If we already passed the third quadrant, check if the number of black cells in the third quadrant is equal to the number of black cells in the qb[2]
-    if (i < n / 2 && j < n / 2)
+    // If we already passed the first quadrant, check if the number of black cells in the first quadrant is equal to the number of black cells in the qb[0]
+    if (i > n / 2)
     {
-        int sum_black_third_q = count_black_cells_third_q(qrcode, n);
-        if (sum_black_third_q > qb[2])
+        int sum_black_first_q = count_black_cells_first_q(qrcode, n);
+        if (sum_black_first_q != qb[0])
         {
             return;
         }
     }
 
-    // If we already passed the fourth quadrant, check if the number of black cells in the fourth quadrant is equal to the number of black cells in the qb[3]
-    if (i < n / 2 && j >= n / 2)
-    {
-        int sum_black_fourth_q = count_black_cells_fourth_q(qrcode, n);
-        if (sum_black_fourth_q > qb[3])
-        {
-            return;
-        }
-    }
+    // // If we already passed the third quadrant, check if the number of black cells in the third quadrant is equal to the number of black cells in the qb[2]
+    // if (i > n / 2 && j > n / 2)
+    // {
+    //     int sum_black_third_q = count_black_cells_third_q(qrcode, n);
+    //     if (sum_black_third_q != qb[2])
+    //     {
+    //         return;
+    //     }
+    // }
 
-    // Check if the number of transitions in the row is equal to the number of transitions in the lt
-    if (countTransitionsRow(qrcode, i) > lt.at(i))
-    {
-        return;
-    }
+    // // Check if the number of transitions in the row is equal to the number of transitions in the lt
+    // if (countTransitionsRow(qrcode, i) > lt.at(i))
+    // {
+    //     return;
+    // }
 
-    // Check if the number of transitions in the column is equal to the number of transitions in the ct
-    if (countTransitionsCol(qrcode, j) > ct.at(j))
-    {
-        return;
-    }
+    // // Check if the number of transitions in the column is equal to the number of transitions in the ct
+    // if (countTransitionsCol(qrcode, j) > ct.at(j))
+    // {
+    //     return;
+    // }
+
+    // If we already passed the half of the matrix, check if the number of black cells in the first half is equal to the number of black cells of the first quadrant + the number of black cells of the fourth quadrant
+    // if (i >= n / 2)
+    // {
+    //     sum = 0;
+    //     for (int i = 0; i < n / 2; i++)
+    //     {
+    //         sum += lb[i];
+    //     }
+
+    //     if (sum != qb[0] + qb[1])
+    //     {
+    //         return;
+    //     }
+    // }
 
     // only change the cell if it is equal to -1
     if (qrcode.at(i).at(j) == -1)
@@ -901,11 +944,11 @@ int main()
     // freopen("teste.in", "r", stdin);
     // freopen("testes\\test_help_enunciado1.in", "r", stdin);
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
-    // freopen("testes\\test_help_1.in", "r", stdin);
+    //  freopen("testes\\test_help_1.in", "r", stdin);
     // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento
-    //  freopen("testes\\test_help_3.in", "r", stdin);    // Sem pre processamento
+    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento
     // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento       // tem de ter 1.2/1.3
-    //  freopen("testes\\test_help_5.in", "r", stdin);
+    //   freopen("testes\\test_help_5.in", "r", stdin);
 
     int T;
     cin >> T;
