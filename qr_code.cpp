@@ -18,6 +18,7 @@ int GLOBAL = 0; // Global variable to count the number of solutions
 
 int NUMERO_ZEROS = 0;
 int NUMERO_UNS = 0;
+int MAX_BLACK_CELLS = 0;
 
 vector<vector<int>> qrcode_ptr;
 
@@ -644,7 +645,7 @@ bool preprocessamento(const int n, const vector<int> &lb, const vector<int> &cb,
     return true;
 }
 
-void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db)
+void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db, int sum_black)
 {
     // if the board is full, check if it is a solution and print it if it is
     if (i == n)
@@ -660,7 +661,7 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     // if the row is full, go to the next row
     if (j == n)
     {
-        geraqrcode(qrcode, n, i + 1, 0, lb, cb, lt, ct, qb, db);
+        geraqrcode(qrcode, n, i + 1, 0, lb, cb, lt, ct, qb, db, sum_black);
         return;
     }
 
@@ -722,21 +723,24 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         return;
     }
 
-    // Check if the number of 1's in the quadrant is equal to the number of 1's in the quadrant
-    // quadrant 1 if l ≤ floor(N/2) and c > floor(N/2)
+    // Check if the number of black cells in the matrix has already been exceeded
+    if (sum_black > MAX_BLACK_CELLS)
+    {
+        return;
+    }
 
     // only change the cell if it is equal to -1
     if (qrcode.at(i).at(j) == -1)
     {
         qrcode.at(i).at(j) = 1;
-        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db);
+        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, sum_black + 1);
         qrcode.at(i).at(j) = 0;
-        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db);
+        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, sum_black);
         qrcode.at(i).at(j) = -1;
     }
     else
     {
-        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db);
+        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, sum_black);
     }
     NUM_CELULAS_PROCESSADAS++;
 }
@@ -753,7 +757,7 @@ int main()
     // freopen("testes\\test_help_1.in", "r", stdin);
     // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento
     // freopen("testes\\test_help_3.in", "r", stdin);    // Sem pre processamento
-    freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento       // tem de ter 1.2/1.3
+    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento       // tem de ter 1.2/1.3
     // freopen("testes\\test_help_5.in", "r", stdin);
 
     int T;
@@ -784,6 +788,7 @@ int main()
         {
             cin >> lb[i];
             test_linha += lb[i];
+            MAX_BLACK_CELLS += lb[i];
         }
 
         // cb
@@ -822,7 +827,7 @@ int main()
             {
                 // printqrcode(&qrcode, N);
                 // geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db);
-                geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db);
+                geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db, 0);
             }
             // preprocess(qrcode, N, lb, cb, lt, ct, qb, db);
             // printqrcode(&qrcode, N);
@@ -842,12 +847,13 @@ int main()
                 // printqrcode(&qrcode, N);
             }
         }
-        std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
+        // std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
         GLOBAL = 0;
         test_coluna = 0;
         test_linha = 0;
         test_quadrante = 0;
         NUM_CELULAS_PROCESSADAS = 0;
+        MAX_BLACK_CELLS = 0;
     }
 
     return 0;
