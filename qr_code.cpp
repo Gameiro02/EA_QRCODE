@@ -729,10 +729,42 @@ int count_black_cells_fourth_q(const vector<vector<int>> &qrcode, const int n)
     return sum_black;
 }
 
+int countTransitionsRow(vector<vector<int>> matrix, int row)
+{
+    int count = 0;
+    int n = matrix[0].size();
+
+    for (int i = 1; i < n; i++)
+    {
+        if ((matrix[row][i] == 1 && matrix[row][i - 1] == 0) ||
+            (matrix[row][i] == 0 && matrix[row][i - 1] == 1))
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+int countTransitionsCol(vector<vector<int>> matrix, int col)
+{
+    int count = 0;
+    int n = matrix.size();
+
+    for (int i = 1; i < n; i++)
+    {
+        if ((matrix[i][col] == 1 && matrix[i - 1][col] == 0) ||
+            (matrix[i][col] == 0 && matrix[i - 1][col] == 1))
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
 void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db, int sum_black_total)
 {
     // Print the qrcode so far
-    printqrcode(&qrcode, n);
+    // printqrcode(&qrcode, n);
 
     NUM_CELULAS_PROCESSADAS++;
 
@@ -755,44 +787,23 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     }
 
     // Check if the number of 1's in the row is equal to the number of 1's in the line
+    // Check if the number of 1's in the column is equal to the number of 1's in the column
+    // Check if the number of 1's in the diagonal is equal to the number of 1's in the diagonal
+
+    int sum_d = 0;
+    int sum_d2 = 0;
     int sum = 0;
+    int sum_c = 0;
     for (int k = 0; k < n; k++)
     {
         if (qrcode.at(i).at(k) == 1)
         {
             sum++;
         }
-    }
-
-    if (sum > lb.at(i))
-    {
-        // geraqrcode(qrcode, n, i + 1, j, lb, cb, lt, ct, qb, db, sum_black_total);
-        return;
-    }
-
-    // Check if the number of 1's in the column is equal to the number of 1's in the column
-    int sum_c = 0;
-
-    for (int k = 0; k < n; k++)
-    {
         if (qrcode.at(k).at(j) == 1)
         {
             sum_c++;
         }
-    }
-
-    if (sum_c > cb.at(j))
-    {
-        return;
-    }
-
-    // Check if the number of 1's in the diagonal is equal to the number of 1's in the diagonal
-
-    int sum_d = 0;
-    int sum_d2 = 0;
-
-    for (int k = 0; k < n; k++)
-    {
         if (qrcode.at(k).at(k) == 1)
         {
             sum_d++;
@@ -803,12 +814,7 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         }
     }
 
-    if (sum_d > db.at(0))
-    {
-        return;
-    }
-
-    if (sum_d2 > db.at(1))
+    if (sum > lb.at(i) || sum_c > cb.at(j) || sum_d > db.at(0) || sum_d2 > db.at(1))
     {
         return;
     }
@@ -859,6 +865,18 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         }
     }
 
+    // Check if the number of transitions in the row is equal to the number of transitions in the lt
+    if (countTransitionsRow(qrcode, i) > lt.at(i))
+    {
+        return;
+    }
+
+    // Check if the number of transitions in the column is equal to the number of transitions in the ct
+    if (countTransitionsCol(qrcode, j) > ct.at(j))
+    {
+        return;
+    }
+
     // only change the cell if it is equal to -1
     if (qrcode.at(i).at(j) == -1)
     {
@@ -883,10 +901,10 @@ int main()
     // freopen("teste.in", "r", stdin);
     // freopen("testes\\test_help_enunciado1.in", "r", stdin);
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
-    //  freopen("testes\\test_help_1.in", "r", stdin);
-    //  freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento
+    // freopen("testes\\test_help_1.in", "r", stdin);
+    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento
     //  freopen("testes\\test_help_3.in", "r", stdin);    // Sem pre processamento
-    //  freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento       // tem de ter 1.2/1.3
+    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento       // tem de ter 1.2/1.3
     //  freopen("testes\\test_help_5.in", "r", stdin);
 
     int T;
@@ -976,7 +994,7 @@ int main()
                 // printqrcode(&qrcode, N);
             }
         }
-        std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
+        // std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
         GLOBAL = 0;
         test_coluna = 0;
         test_linha = 0;
