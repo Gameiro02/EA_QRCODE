@@ -652,9 +652,9 @@ int count_black_cells_first_q(const vector<vector<int>> &qrcode, const int n)
     // The first quadrant is the one in the top right corner : lines 0 to n/2 and columns n/2 to n
     int sum_black = 0;
 
-    for (int i = 0; i < n / 2; i++)
+    for (int i = 0; i < floor(n / 2); i++)
     {
-        for (int j = n / 2; j < n; j++)
+        for (int j = floor(n / 2); j < n; j++)
         {
             if (qrcode[i][j] == 1)
             {
@@ -673,9 +673,9 @@ int count_black_cells_second_q(const vector<vector<int>> &qrcode, const int n)
 
     int sum_black = 0;
 
-    for (int i = 0; i < n / 2; i++)
+    for (int i = 0; i < floor(n / 2); i++)
     {
-        for (int j = 0; j < n / 2; j++)
+        for (int j = 0; j < floor(n / 2); j++)
         {
             if (qrcode[i][j] == 1)
             {
@@ -866,6 +866,12 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         return;
     }
 
+    // If the column j-1 has more transitions than ct[j-1]
+    if (j > 0 && countTransitionsCol(qrcode, j - 1) > ct[j - 1])
+    {
+        return;
+    }
+
     // Check if the already exceeded the number of black cells in the diagonal
     if (i > 0 && j > 0 && count_black_cells_diagonal(qrcode, n) > db[0])
     {
@@ -878,66 +884,145 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         return;
     }
 
-    // Check if the number of 1's in the row is equal to the number of 1's in the line
-    // Check if the number of 1's in the column is equal to the number of 1's in the column
-    // Check if the number of 1's in the diagonal is equal to the number of 1's in the diagonal
-
-    int sum_d = 0;
-    int sum_d2 = 0;
-    int sum = 0;
-    int sum_c = 0;
-    for (int k = 0; k < n; k++)
-    {
-        if (qrcode.at(i).at(k) == 1)
-        {
-            sum++;
-        }
-        if (qrcode.at(k).at(j) == 1)
-        {
-            sum_c++;
-        }
-        if (qrcode.at(k).at(k) == 1)
-        {
-            sum_d++;
-        }
-        if (qrcode.at(k).at(n - k - 1) == 1)
-        {
-            sum_d2++;
-        }
-    }
-
-    if (sum > lb.at(i) || sum_c > cb.at(j) || sum_d > db.at(0) || sum_d2 > db.at(1))
-    {
-        return;
-    }
-
-    // Check if the number of black cells in the matrix has already been exceeded
     if (sum_black_total > MAX_BLACK_CELLS)
     {
         return;
     }
 
+    // If we already passed half of the board, we can check if the number of black cells in the first 2 quadrants
+    if (i > n / 2)
+    {
+        // Second quadrant
+        int sum_black = 0;
+        for (int k = 0; k < n / 2; k++)
+        {
+            for (int l = 0; l < n / 2; l++)
+            {
+                if (qrcode[k][l] == 1)
+                {
+                    sum_black++;
+                }
+            }
+        }
+
+        if (sum_black != qb[1])
+        {
+            return;
+        }
+
+        // First quadrant
+        sum_black = 0;
+        for (int k = 0; k < n / 2; k++)
+        {
+            for (int l = n / 2; l < n; l++)
+            {
+                if (qrcode[k][l] == 1)
+                {
+                    sum_black++;
+                }
+            }
+        }
+
+        if (sum_black != qb[0])
+        {
+            return;
+        }
+    }
+    else
+    {
+        // Second quadrant
+        int sum_black = 0;
+        for (int k = 0; k < n / 2; k++)
+        {
+            for (int l = 0; l < n / 2; l++)
+            {
+                if (qrcode[k][l] == 1)
+                {
+                    sum_black++;
+                }
+            }
+        }
+
+        if (sum_black > qb[1])
+        {
+            return;
+        }
+
+        // First quadrant
+        sum_black = 0;
+        for (int k = 0; k < n / 2; k++)
+        {
+            for (int l = n / 2; l < n; l++)
+            {
+                if (qrcode[k][l] == 1)
+                {
+                    sum_black++;
+                }
+            }
+        }
+
+        if (sum_black > qb[0])
+        {
+            return;
+        }
+    }
+
+    // Check if the number of 1's in the row is equal to the number of 1's in the line
+    // Check if the number of 1's in the column is equal to the number of 1's in the column
+    // Check if the number of 1's in the diagonal is equal to the number of 1's in the diagonal
+
+    // int sum_d = 0;
+    // int sum_d2 = 0;
+    // int sum = 0;
+    // int sum_c = 0;
+    // for (int k = 0; k < n; k++)
+    // {
+    //     if (qrcode.at(i).at(k) == 1)
+    //     {
+    //         sum++;
+    //     }
+    //     if (qrcode.at(k).at(j) == 1)
+    //     {
+    //         sum_c++;
+    //     }
+    //     if (qrcode.at(k).at(k) == 1)
+    //     {
+    //         sum_d++;
+    //     }
+    //     if (qrcode.at(k).at(n - k - 1) == 1)
+    //     {
+    //         sum_d2++;
+    //     }
+    // }
+
+    // if (sum > lb.at(i) || sum_c > cb.at(j) || sum_d > db.at(0) || sum_d2 > db.at(1))
+    // {
+    //     return;
+    // }
+
+    // Check if the number of black cells in the matrix has already been exceeded
+
     // If we already passed the second quadrant, check if the number of black cells in the second quadrant is equal to the number of black cells in the qb[1]
-    if (i > n / 2)
-    {
-        int sum_black_second_q = count_black_cells_second_q(qrcode, n);
-        if (sum_black_second_q != qb[1])
-        {
-            return;
-        }
-    }
+    // if (i > n / 2)
+    // {
+    //     int sum_black_second_q = count_black_cells_second_q(qrcode, n);
+    //     if (sum_black_second_q != qb[1])
+    //     {
+    //         return;
+    //     }
+    // }
 
-    // If we already passed the first quadrant, check if the number of black cells in the first quadrant is equal to the number of black cells in the qb[0]
-    if (i > n / 2)
-    {
-        int sum_black_first_q = count_black_cells_first_q(qrcode, n);
-        if (sum_black_first_q != qb[0])
-        {
-            return;
-        }
-    }
+    // // If we already passed the first quadrant, check if the number of black cells in the first quadrant is equal to the number of black cells in the qb[0]
+    // if (i > n / 2)
+    // {
+    //     int sum_black_first_q = count_black_cells_first_q(qrcode, n);
+    //     if (sum_black_first_q != qb[0])
+    //     {
+    //         return;
+    //     }
+    // }
 
-    // // If we already passed the third quadrant, check if the number of black cells in the third quadrant is equal to the number of black cells in the qb[2]
+    // If we already passed the third quadrant, check if the number of black cells in the third quadrant is equal to the number of black cells in the qb[2]
     // if (i > n / 2 && j > n / 2)
     // {
     //     int sum_black_third_q = count_black_cells_third_q(qrcode, n);
@@ -996,13 +1081,13 @@ int main()
 
     // redireciona a entrada para um arquivo
     // freopen("teste.in", "r", stdin);
-    // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309
+    // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
-    //  freopen("testes\\test_help_1.in", "r", stdin);
+    // freopen("testes\\test_help_1.in", "r", stdin);
     // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento
-    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381
-    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249
-    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 -
+    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998
+    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643
+    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 -2045900
 
     int T;
     cin >> T;
@@ -1091,7 +1176,7 @@ int main()
                 // printqrcode(&qrcode, N);
             }
         }
-        std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
+        // std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
         GLOBAL = 0;
         test_coluna = 0;
         test_linha = 0;
