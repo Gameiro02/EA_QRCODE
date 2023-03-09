@@ -19,9 +19,11 @@ int GLOBAL = 0; // Global variable to count the number of solutions
 int NUMERO_ZEROS = 0;
 int NUMERO_UNS = 0;
 int MAX_BLACK_CELLS = 0;
-bool STOP = false;
+int update = 0;
 
 vector<vector<int>> qrcode_ptr;
+
+void preprocess2(vector<vector<int>> &v, const int n, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db);
 
 void printqrcode(const vector<vector<int>> *qrcode_ptr, const int n)
 {
@@ -493,6 +495,8 @@ bool preprocess(vector<vector<int>> &v, const int n, const vector<int> &lb, cons
     // qb
     verifica_quadrantes(v, n, qb);
 
+    preprocess2(v, n, lb, cb, lt, ct, qb, db);
+
     // Check if the qr_code is full and if it is valid
     bool flag = 0;
     for (int i = 0; i < n; i++)
@@ -516,6 +520,434 @@ bool preprocess(vector<vector<int>> &v, const int n, const vector<int> &lb, cons
             return true;
         }
     }
+    return false;
+}
+
+void preprocess2(vector<vector<int>> &v, const int n, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db)
+{
+    // Verificar se em cada linha ja temos o numero de brancas
+    for (int i = 0; i < n; i++)
+    {
+        int num_branco_esperado = n - lb[i];
+
+        int count_branco = 0;
+        int count_preto = 0;
+
+        for (int j = 0; j < n; j++)
+        {
+            if (v[i][j] == 0)
+            {
+                count_branco++;
+            }
+        }
+
+        if (count_branco == num_branco_esperado)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (v[i][j] == -1)
+                {
+                    v[i][j] = 1;
+                }
+            }
+        }
+
+        if (count_preto == lb[i])
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (v[i][j] == -1)
+                {
+                    v[i][j] = 0;
+                }
+            }
+        }
+    }
+
+    // Verificar se em cada coluna ja temos o numero de brancas
+
+    for (int i = 0; i < n; i++)
+    {
+        int num_branco_esperado = n - cb[i];
+
+        int count_branco = 0;
+        int count_preto = 0;
+
+        for (int j = 0; j < n; j++)
+        {
+            if (v[j][i] == 0)
+            {
+                count_branco++;
+            }
+        }
+
+        if (count_branco == num_branco_esperado)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (v[j][i] == -1)
+                {
+                    v[j][i] = 1;
+                }
+            }
+        }
+
+        if (count_preto == cb[i])
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (v[j][i] == -1)
+                {
+                    v[j][i] = 0;
+                }
+            }
+        }
+    }
+}
+
+bool is_filled_row(vector<vector<int>> &v, int n, int line)
+{
+    for (int i = 0; i < n; i++)
+    {
+        if (v[line][i] == -1)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool is_filled_collumn(vector<vector<int>> &v, int n, int collumn)
+{
+    for (int i = 0; i < n; i++)
+    {
+        if (v[i][collumn] == -1)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool is_fill_diagonal(vector<vector<int>> &v, int n, int diagonal)
+{
+    if (diagonal == 0)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (v[i][i] == -1)
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (v[i][n - 1 - i] == -1)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool is_filled_quadrant(vector<vector<int>> &v, int n, int quadrant)
+{
+    int flor = floor(n / 2);
+    if (quadrant == 2)
+    {
+        for (int i = 0; i < flor; i++)
+        {
+            for (int j = 0; j < flor; j++)
+            {
+                if (v[i][j] == -1)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    else if (quadrant == 1)
+    {
+        for (int i = 0; i < flor; i++)
+        {
+            for (int j = flor; j < n; j++)
+            {
+                if (v[i][j] == -1)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    else if (quadrant == 3)
+    {
+        for (int i = flor; i < n; i++)
+        {
+            for (int j = 0; j < flor; j++)
+            {
+                if (v[i][j] == -1)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (int i = flor; i < n; i++)
+        {
+            for (int j = flor; j < n; j++)
+            {
+                if (v[i][j] == -1)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool is_impossivel(vector<vector<int>> &qr, const int n, int linha, int col, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db)
+{
+    // Se a linha esta cheia, podemos verificar com != , se nao, com >
+    int count = 0;
+    int count_transitions = 0;
+
+    /*---------------------------------------- LINHAS ----------------------------------------*/
+    if (is_filled_row(qr, n, linha))
+    {
+
+        for (int i = 0; i < n; i++)
+        {
+            if (qr[linha][i] == 1)
+            {
+                count++;
+            }
+
+            if ((qr[linha][i] == 1 && qr[linha][i - 1] == 0) ||
+                (qr[linha][i] == 0 && qr[linha][i - 1] == 1))
+            {
+                count_transitions++;
+            }
+        }
+
+        if (count != lb[linha])
+        {
+            return true;
+        }
+
+        if (count_transitions != lt[linha])
+        {
+            return true;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (qr[linha][i] == 1)
+            {
+                count++;
+            }
+            if ((qr[linha][i] == 1 && qr[linha][i - 1] == 0) ||
+                (qr[linha][i] == 0 && qr[linha][i - 1] == 1))
+            {
+                count_transitions++;
+            }
+        }
+
+        if (count > lb[linha])
+        {
+            return true;
+        }
+
+        if (count_transitions > lt[linha])
+        {
+            return true;
+        }
+    }
+
+    /*---------------------------------------- COLUNAS ----------------------------------------*/
+
+    // Se a coluna esta cheia, podemos verificar com != , se nao, com >
+    count = 0;
+    count_transitions = 0;
+
+    if (is_filled_collumn(qr, n, linha))
+    {
+
+        for (int i = 0; i < n; i++)
+        {
+            if (qr[i][linha] == 1)
+            {
+                count++;
+            }
+            if ((qr[i][col] == 1 && qr[i - 1][col] == 0) ||
+                (qr[i][col] == 0 && qr[i - 1][col] == 1))
+            {
+                count_transitions++;
+            }
+        }
+
+        if (count != cb[linha])
+        {
+            return true;
+        }
+
+        if (count_transitions != ct[col])
+        {
+            return true;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (qr[i][linha] == 1)
+            {
+                count++;
+            }
+            if ((qr[i][col] == 1 && qr[i - 1][col] == 0) ||
+                (qr[i][col] == 0 && qr[i - 1][col] == 1))
+            {
+                count_transitions++;
+            }
+        }
+
+        if (count > cb[linha])
+        {
+            return true;
+        }
+
+        if (count_transitions > ct[col])
+        {
+            return true;
+        }
+    }
+
+    /*---------------------------------------- DIAGONAL ----------------------------------------*/
+
+    // Se a diagonal esta cheia, podemos verificar com != , se nao, com >
+
+    count = 0;
+
+    if (is_fill_diagonal(qr, n, 0))
+    {
+
+        for (int i = 0; i < n; i++)
+        {
+            if (qr[i][i] == 1)
+            {
+                count++;
+            }
+        }
+
+        if (count != db[0])
+        {
+            return true;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (qr[i][i] == 1)
+            {
+                count++;
+            }
+        }
+
+        if (count > db[0])
+        {
+            return true;
+        }
+    }
+
+    count = 0;
+
+    if (is_fill_diagonal(qr, n, 1))
+    {
+
+        for (int i = 0; i < n; i++)
+        {
+            if (qr[i][n - 1 - i] == 1)
+            {
+                count++;
+            }
+        }
+
+        if (count != db[1])
+        {
+            return true;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (qr[i][n - 1 - i] == 1)
+            {
+                count++;
+            }
+        }
+
+        if (count > db[1])
+        {
+            return true;
+        }
+    }
+
+    /*---------------------------------------- QUADRANTES ----------------------------------------*/
+
+    // Se o quadrante esta cheio, podemos verificar com != , se nao, com >
+
+    count = 0;
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (is_filled_quadrant(qr, n, i + 1))
+        {
+            for (int j = 0; j < n; j++)
+            {
+                for (int k = 0; k < n; k++)
+                {
+                    if (qr[j][k] == 1)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            if (count != qb[i])
+            {
+                return true;
+            }
+        }
+        else
+        {
+            for (int j = 0; j < n; j++)
+            {
+                for (int k = 0; k < n; k++)
+                {
+                    if (qr[j][k] == 1)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            if (count > qb[i])
+            {
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 
@@ -736,7 +1168,6 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     }
 
     // If the line i-1 has the right number of black cells
-
     if (i > 0 && count_black_cells_row(qrcode, n, i - 1) != lb[i - 1])
     {
         return;
@@ -761,13 +1192,13 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     }
 
     // Check if the already exceeded the number of black cells in the diagonal
-    if (i > 0 && j > 0 && count_black_cells_diagonal(qrcode, n) > db[0])
+    if (i > 0 && count_black_cells_diagonal(qrcode, n) > db[0])
     {
         return;
     }
 
     // Check if the already exceeded the number of black cells in the antidiagonal
-    if (i > 0 && j > 0 && count_black_cells_antidiagonal(qrcode, n) > db[1])
+    if (i > 0 && count_black_cells_antidiagonal(qrcode, n) > db[1])
     {
         return;
     }
@@ -855,6 +1286,45 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         }
     }
 
+    if (i > n / 2)
+    {
+        // Third quadrant
+        int sum_black = 0;
+        for (int k = n / 2; k < n; k++)
+        {
+            for (int l = 0; l < n / 2; l++)
+            {
+                if (qrcode[k][l] == 1)
+                {
+                    sum_black++;
+                }
+            }
+        }
+
+        if (sum_black > qb[2])
+        {
+            return;
+        }
+
+        // Fourth quadrant
+        sum_black = 0;
+        for (int k = n / 2; k < n; k++)
+        {
+            for (int l = n / 2; l < n; l++)
+            {
+                if (qrcode[k][l] == 1)
+                {
+                    sum_black++;
+                }
+            }
+        }
+
+        if (sum_black > qb[3])
+        {
+            return;
+        }
+    }
+
     // only change the cell if it is equal to -1
     if (qrcode.at(i).at(j) == -1)
     {
@@ -870,20 +1340,37 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     }
 }
 
+int count_black_cells_qrcode(vector<vector<int>> &qrcode, int n)
+{
+    int sum_black = 0;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (qrcode[i][j] == 1)
+            {
+                sum_black++;
+            }
+        }
+    }
+
+    return sum_black;
+}
+
 int main()
 {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
 
     // redireciona a entrada para um arquivo
-    // freopen("teste.in", "r", stdin);
+    freopen("testes\\teste_tudo.in", "r", stdin);
     // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
     // freopen("testes\\test_help_1.in", "r", stdin);
-    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento
+    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento  42310
     // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998
     // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643
-    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 -2045900
+    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 -2011593
 
     int T;
     cin >> T;
@@ -950,7 +1437,7 @@ int main()
             if (!preprocess(qrcode, N, lb, cb, lt, ct, qb, db))
             {
                 // printqrcode(&qrcode, N);
-                //  geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db);
+                num_ones = count_black_cells_qrcode(qrcode, N);
                 geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db, num_ones);
             }
             // preprocess(qrcode, N, lb, cb, lt, ct, qb, db);
@@ -972,7 +1459,7 @@ int main()
                 // printqrcode(&qrcode, N);
             }
         }
-        // std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
+        std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
         GLOBAL = 0;
         test_coluna = 0;
         test_linha = 0;
