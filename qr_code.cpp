@@ -792,6 +792,36 @@ int count_black_cells_col(const vector<vector<int>> &qrcode, const int n, const 
     return sum_black;
 }
 
+int count_black_cells_diagonal(const vector<vector<int>> &qrcode, const int n)
+{
+    int sum_black = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (qrcode[i][i] == 1)
+        {
+            sum_black++;
+        }
+    }
+
+    return sum_black;
+}
+
+int count_black_cells_antidiagonal(const vector<vector<int>> &qrcode, const int n)
+{
+    int sum_black = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (qrcode[i][n - i - 1] == 1)
+        {
+            sum_black++;
+        }
+    }
+
+    return sum_black;
+}
+
 void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db, int sum_black_total)
 {
     // Print the qrcode so far
@@ -817,9 +847,33 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         return;
     }
 
-    // If if the line i-1 has the right number of black cells
+    // If the line i-1 has the right number of black cells
 
     if (i > 0 && count_black_cells_row(qrcode, n, i - 1) != lb[i - 1])
+    {
+        return;
+    }
+
+    // If the line i-1 has more transitions than lt[i-1]
+    if (i > 0 && countTransitionsRow(qrcode, i - 1) != lt[i - 1])
+    {
+        return;
+    }
+
+    // If the column j-1 has the right number of black cells
+    if (j > 0 && count_black_cells_col(qrcode, n, j - 1) > cb[j - 1])
+    {
+        return;
+    }
+
+    // Check if the already exceeded the number of black cells in the diagonal
+    if (i > 0 && j > 0 && count_black_cells_diagonal(qrcode, n) > db[0])
+    {
+        return;
+    }
+
+    // Check if the already exceeded the number of black cells in the antidiagonal
+    if (i > 0 && j > 0 && count_black_cells_antidiagonal(qrcode, n) > db[1])
     {
         return;
     }
@@ -942,13 +996,13 @@ int main()
 
     // redireciona a entrada para um arquivo
     // freopen("teste.in", "r", stdin);
-    // freopen("testes\\test_help_enunciado1.in", "r", stdin);
+    // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
     //  freopen("testes\\test_help_1.in", "r", stdin);
     // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento
-    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento
-    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento       // tem de ter 1.2/1.3
-    //   freopen("testes\\test_help_5.in", "r", stdin);
+    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381
+    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249
+    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 -
 
     int T;
     cin >> T;
@@ -1037,7 +1091,7 @@ int main()
                 // printqrcode(&qrcode, N);
             }
         }
-        // std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
+        std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
         GLOBAL = 0;
         test_coluna = 0;
         test_linha = 0;
