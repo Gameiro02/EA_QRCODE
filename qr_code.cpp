@@ -175,7 +175,10 @@ void fill_line(vector<vector<int>> &v, const int n, const int line, const int va
     for (int i = 0; i < n; i++)
     {
         if (v[line][i] == -1)
+        {
             v[line][i] = value;
+            update++;
+        }
     }
 }
 
@@ -184,7 +187,10 @@ void fill_collumn(vector<vector<int>> &v, const int n, const int collumn, const 
     for (int i = 0; i < n; i++)
     {
         if (v[i][collumn] == -1)
+        {
             v[i][collumn] = value;
+            update++;
+        }
     }
 }
 
@@ -196,14 +202,22 @@ void fill_diagonal(vector<vector<int>> &v, const int n, const int diagonal, cons
     {
         for (int i = 0; i < n; i++)
         {
-            v[i][i] = value;
+            if (v[i][i] == -1)
+            {
+                v[i][i] = value;
+                update++;
+            }
         }
     }
     else
     {
         for (int i = 0; i < n; i++)
         {
-            v[i][n - i - 1] = value;
+            if (v[i][n - i - 1] == -1)
+            {
+                v[i][n - i - 1] = value;
+                update++;
+            }
         }
     }
 }
@@ -241,7 +255,11 @@ void fill_quadrant(vector<vector<int>> &v, const int n, const int quadrant, cons
         {
             for (int j = 0; j < flor; j++)
             {
-                v[i][j] = value;
+                if (v[i][j] == -1)
+                {
+                    v[i][j] = value;
+                    update++;
+                }
             }
         }
     }
@@ -251,7 +269,11 @@ void fill_quadrant(vector<vector<int>> &v, const int n, const int quadrant, cons
         {
             for (int j = flor; j < n; j++)
             {
-                v[i][j] = value;
+                if (v[i][j] == -1)
+                {
+                    v[i][j] = value;
+                    update++;
+                }
             }
         }
     }
@@ -274,6 +296,7 @@ void verifica_linhas(vector<vector<int>> &v, int n, int linha_total, int linha)
                 if (v[linha][j] == -1)
                 {
                     v[linha][j] = 0;
+                    update++;
                 }
             }
         }
@@ -297,6 +320,7 @@ void verifica_colunas(vector<vector<int>> &v, int n, int coluna_total, int colun
                 if (v[j][coluna] == -1)
                 {
                     v[j][coluna] = 0;
+                    update++;
                 }
             }
         }
@@ -355,9 +379,10 @@ void verifica_quadrantes(vector<vector<int>> &v, int n, const vector<int> &quadr
             {
                 if (i <= flor && j > flor)
                 {
-                    if (v[i][j] == -11)
+                    if (v[i][j] == -1)
                     {
                         v[i][j] = 0;
+                        update++;
                     }
                 }
             }
@@ -373,6 +398,7 @@ void verifica_quadrantes(vector<vector<int>> &v, int n, const vector<int> &quadr
                 if (v[i][j] == -1)
                 {
                     v[i][j] = 0;
+                    update++;
                 }
             }
         }
@@ -389,6 +415,7 @@ void verifica_quadrantes(vector<vector<int>> &v, int n, const vector<int> &quadr
                     if (v[i][j] == -1)
                     {
                         v[i][j] = 0;
+                        update++;
                     }
                 }
             }
@@ -406,6 +433,7 @@ void verifica_quadrantes(vector<vector<int>> &v, int n, const vector<int> &quadr
                     if (v[i][j] == 1)
                     {
                         v[i][j] = 0;
+                        update++;
                     }
                 }
             }
@@ -548,6 +576,7 @@ void preprocess2(vector<vector<int>> &v, const int n, const vector<int> &lb, con
                 if (v[i][j] == -1)
                 {
                     v[i][j] = 1;
+                    update++;
                 }
             }
         }
@@ -559,6 +588,7 @@ void preprocess2(vector<vector<int>> &v, const int n, const vector<int> &lb, con
                 if (v[i][j] == -1)
                 {
                     v[i][j] = 0;
+                    update++;
                 }
             }
         }
@@ -588,6 +618,7 @@ void preprocess2(vector<vector<int>> &v, const int n, const vector<int> &lb, con
                 if (v[j][i] == -1)
                 {
                     v[j][i] = 1;
+                    update++;
                 }
             }
         }
@@ -599,6 +630,7 @@ void preprocess2(vector<vector<int>> &v, const int n, const vector<int> &lb, con
                 if (v[j][i] == -1)
                 {
                     v[j][i] = 0;
+                    update++;
                 }
             }
         }
@@ -1097,6 +1129,21 @@ int count_black_cells_row(const vector<vector<int>> &qrcode, const int n, const 
     return sum_black;
 }
 
+int count_white_cells_row(const vector<vector<int>> &qrcode, const int n, const int row)
+{
+    int sum_white = 0;
+
+    for (int j = 0; j < n; j++)
+    {
+        if (qrcode[row][j] == 0)
+        {
+            sum_white++;
+        }
+    }
+
+    return sum_white;
+}
+
 int count_black_cells_col(const vector<vector<int>> &qrcode, const int n, const int col)
 {
     int sum_black = 0;
@@ -1110,6 +1157,21 @@ int count_black_cells_col(const vector<vector<int>> &qrcode, const int n, const 
     }
 
     return sum_black;
+}
+
+int count_white_cells_col(const vector<vector<int>> &qrcode, const int n, const int col)
+{
+    int sum_white = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (qrcode[i][col] == 0)
+        {
+            sum_white++;
+        }
+    }
+
+    return sum_white;
 }
 
 int count_black_cells_diagonal(const vector<vector<int>> &qrcode, const int n)
@@ -1127,6 +1189,21 @@ int count_black_cells_diagonal(const vector<vector<int>> &qrcode, const int n)
     return sum_black;
 }
 
+int count_white_cells_diagonal(const vector<vector<int>> &qrcode, const int n)
+{
+    int sum_white = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (qrcode[i][i] == 0)
+        {
+            sum_white++;
+        }
+    }
+
+    return sum_white;
+}
+
 int count_black_cells_antidiagonal(const vector<vector<int>> &qrcode, const int n)
 {
     int sum_black = 0;
@@ -1140,6 +1217,50 @@ int count_black_cells_antidiagonal(const vector<vector<int>> &qrcode, const int 
     }
 
     return sum_black;
+}
+
+int count_white_cells_antidiagonal(const vector<vector<int>> &qrcode, const int n)
+{
+    int sum_white = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (qrcode[i][n - i - 1] == 0)
+        {
+            sum_white++;
+        }
+    }
+
+    return sum_white;
+}
+
+int calcula_quadrados(int n, int quadrante)
+{
+    int comprimento;
+    int largura;
+
+    if (quadrante == 1)
+    {
+        comprimento = n / 2 + 1;
+        largura = n / 2;
+    }
+    else if (quadrante == 2)
+    {
+        comprimento = n / 2;
+        largura = n / 2;
+    }
+    else if (quadrante == 3)
+    {
+        comprimento = n / 2;
+        largura = n / 2 + 1;
+    }
+    else if (quadrante == 4)
+    {
+        comprimento = n / 2 + 1;
+        largura = n / 2 + 1;
+    }
+
+    return comprimento * largura;
 }
 
 void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db, int sum_black_total)
@@ -1173,6 +1294,12 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         return;
     }
 
+    // If the line i-1 has the right number of white cells
+    if (i > 0 && count_white_cells_row(qrcode, n, i - 1) != n - lb[i - 1])
+    {
+        return;
+    }
+
     // If the line i-1 has more transitions than lt[i-1]
     if (i > 0 && countTransitionsRow(qrcode, i - 1) != lt[i - 1])
     {
@@ -1181,6 +1308,12 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
 
     // If the column j-1 has the right number of black cells
     if (j > 0 && count_black_cells_col(qrcode, n, j - 1) > cb[j - 1])
+    {
+        return;
+    }
+
+    // If the column j-1 has the right number of white cells
+    if (j > 0 && count_white_cells_col(qrcode, n, j - 1) > n - cb[j - 1])
     {
         return;
     }
@@ -1197,22 +1330,57 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         return;
     }
 
+    // Check if the already exceeded the number of white cells in the diagonal
+    if (i > 0 && count_white_cells_diagonal(qrcode, n) > n - db[0])
+    {
+        return;
+    }
+
     // Check if the already exceeded the number of black cells in the antidiagonal
     if (i > 0 && count_black_cells_antidiagonal(qrcode, n) > db[1])
     {
         return;
     }
 
+    // Check if the already exceeded the number of white cells in the antidiagonal
+
+    if (i > 0 && count_white_cells_antidiagonal(qrcode, n) > n - db[1])
+    {
+        return;
+    }
+
+    // Check the number of black cells
     if (sum_black_total > MAX_BLACK_CELLS)
     {
         return;
     }
 
-    // If we already passed half of the board, we can check if the number of black cells in the first 2 quadrants
+    // If we already passed half of the board, we can check if the number of black cells and the number of white cells are correct in the first and second quadrants
+    int max_white_cells_first_quadrant = 0;
+    int max_white_cells_second_quadrant = 0;
+    int max_white_cells_third_quadrant = 0;
+    int max_white_cells_fourth_quadrant = 0;
+
+    if (n % 2 == 1)
+    {
+        max_white_cells_first_quadrant = calcula_quadrados(n, 1) - qb[0];
+        max_white_cells_second_quadrant = calcula_quadrados(n, 2) - qb[1];
+        max_white_cells_third_quadrant = calcula_quadrados(n, 3) - qb[2];
+        max_white_cells_fourth_quadrant = calcula_quadrados(n, 4) - qb[3];
+    }
+    else
+    {
+        max_white_cells_first_quadrant = n * n / 4 - qb[0];
+        max_white_cells_second_quadrant = n * n / 4 - qb[1];
+        max_white_cells_third_quadrant = n * n / 4 - qb[2];
+        max_white_cells_fourth_quadrant = n * n / 4 - qb[3];
+    }
+
     if (i > n / 2)
     {
         // Second quadrant
         int sum_black = 0;
+        int sum_white = 0;
         for (int k = 0; k < n / 2; k++)
         {
             for (int l = 0; l < n / 2; l++)
@@ -1220,6 +1388,10 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
                 if (qrcode[k][l] == 1)
                 {
                     sum_black++;
+                }
+                if (qrcode[k][l] == 0)
+                {
+                    sum_white++;
                 }
             }
         }
@@ -1229,8 +1401,14 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
             return;
         }
 
+        if (sum_white != max_white_cells_second_quadrant)
+        {
+            return;
+        }
+
         // First quadrant
         sum_black = 0;
+        sum_white = 0;
         for (int k = 0; k < n / 2; k++)
         {
             for (int l = n / 2; l < n; l++)
@@ -1238,6 +1416,11 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
                 if (qrcode[k][l] == 1)
                 {
                     sum_black++;
+                }
+
+                if (qrcode[k][l] == 0)
+                {
+                    sum_white++;
                 }
             }
         }
@@ -1246,11 +1429,17 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         {
             return;
         }
+
+        if (sum_white != max_white_cells_first_quadrant)
+        {
+            return;
+        }
     }
     else
     {
         // Second quadrant
         int sum_black = 0;
+        int sum_white = 0;
         for (int k = 0; k < n / 2; k++)
         {
             for (int l = 0; l < n / 2; l++)
@@ -1259,6 +1448,10 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
                 {
                     sum_black++;
                 }
+                if (qrcode[k][l] == 0)
+                {
+                    sum_white++;
+                }
             }
         }
 
@@ -1266,9 +1459,14 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         {
             return;
         }
+        if (sum_white > max_white_cells_second_quadrant)
+        {
+            return;
+        }
 
         // First quadrant
         sum_black = 0;
+        sum_white = 0;
         for (int k = 0; k < n / 2; k++)
         {
             for (int l = n / 2; l < n; l++)
@@ -1277,10 +1475,18 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
                 {
                     sum_black++;
                 }
+                if (qrcode[k][l] == 0)
+                {
+                    sum_white++;
+                }
             }
         }
 
         if (sum_black > qb[0])
+        {
+            return;
+        }
+        if (sum_white > max_white_cells_first_quadrant)
         {
             return;
         }
@@ -1290,6 +1496,7 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     {
         // Third quadrant
         int sum_black = 0;
+        int sum_white = 0;
         for (int k = n / 2; k < n; k++)
         {
             for (int l = 0; l < n / 2; l++)
@@ -1298,6 +1505,10 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
                 {
                     sum_black++;
                 }
+                if (qrcode[k][l] == 0)
+                {
+                    sum_white++;
+                }
             }
         }
 
@@ -1305,9 +1516,14 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         {
             return;
         }
+        if (sum_white > max_white_cells_third_quadrant)
+        {
+            return;
+        }
 
         // Fourth quadrant
         sum_black = 0;
+        sum_white = 0;
         for (int k = n / 2; k < n; k++)
         {
             for (int l = n / 2; l < n; l++)
@@ -1316,10 +1532,18 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
                 {
                     sum_black++;
                 }
+                if (qrcode[k][l] == 0)
+                {
+                    sum_white++;
+                }
             }
         }
 
         if (sum_black > qb[3])
+        {
+            return;
+        }
+        if (sum_white > max_white_cells_fourth_quadrant)
         {
             return;
         }
@@ -1363,14 +1587,14 @@ int main()
     cin.tie(0);
 
     // redireciona a entrada para um arquivo
-    freopen("testes\\teste_tudo.in", "r", stdin);
+    // freopen("testes\\teste_tudo.in", "r", stdin);
     // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
     // freopen("testes\\test_help_1.in", "r", stdin);
-    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento  42310
-    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998
-    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643
-    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 -2011593
+    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento  42310 - 28884
+    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790
+    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643 -7761
+    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392
 
     int T;
     cin >> T;
@@ -1432,6 +1656,7 @@ int main()
         {
             cin >> db[i];
         }
+
         if (preprocessamento(N, lb, cb, lt, ct, qb, db, test_linha, test_coluna, test_quadrante))
         {
             if (!preprocess(qrcode, N, lb, cb, lt, ct, qb, db))
@@ -1459,7 +1684,7 @@ int main()
                 // printqrcode(&qrcode, N);
             }
         }
-        std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
+        // std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
         GLOBAL = 0;
         test_coluna = 0;
         test_linha = 0;
