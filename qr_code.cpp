@@ -25,6 +25,8 @@ vector<vector<int>> qrcode_ptr;
 
 void preprocess2(vector<vector<int>> &v, const int n, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db);
 
+int calcula_quadrados(int n, int quadrante);
+
 void printqrcode(const vector<vector<int>> *qrcode_ptr, const int n)
 {
     // make the boarder of the board with + in the corners and - in the sides
@@ -235,7 +237,10 @@ void fill_quadrant(vector<vector<int>> &v, const int n, const int quadrant, cons
         {
             for (int j = flor; j < n; j++)
             {
-                v[i][j] = value;
+                if (v[i][j] == -1)
+                {
+                    v[i][j] = value;
+                }
             }
         }
     }
@@ -245,7 +250,10 @@ void fill_quadrant(vector<vector<int>> &v, const int n, const int quadrant, cons
         {
             for (int j = 0; j < flor; j++)
             {
-                v[i][j] = value;
+                if (v[i][j] == -1)
+                {
+                    v[i][j] = value;
+                }
             }
         }
     }
@@ -258,7 +266,6 @@ void fill_quadrant(vector<vector<int>> &v, const int n, const int quadrant, cons
                 if (v[i][j] == -1)
                 {
                     v[i][j] = value;
-                    update++;
                 }
             }
         }
@@ -272,7 +279,6 @@ void fill_quadrant(vector<vector<int>> &v, const int n, const int quadrant, cons
                 if (v[i][j] == -1)
                 {
                     v[i][j] = value;
-                    update++;
                 }
             }
         }
@@ -635,6 +641,138 @@ void preprocess2(vector<vector<int>> &v, const int n, const vector<int> &lb, con
             }
         }
     }
+
+    int max_white_cells_first_quadrant = 0;
+    int max_white_cells_second_quadrant = 0;
+    int max_white_cells_third_quadrant = 0;
+    int max_white_cells_fourth_quadrant = 0;
+
+    if (n % 2 == 1)
+    {
+        max_white_cells_first_quadrant = calcula_quadrados(n, 1) - qb[0];
+        max_white_cells_second_quadrant = calcula_quadrados(n, 2) - qb[1];
+        max_white_cells_third_quadrant = calcula_quadrados(n, 3) - qb[2];
+        max_white_cells_fourth_quadrant = calcula_quadrados(n, 4) - qb[3];
+    }
+    else
+    {
+        max_white_cells_first_quadrant = n * n / 4 - qb[0];
+        max_white_cells_second_quadrant = n * n / 4 - qb[1];
+        max_white_cells_third_quadrant = n * n / 4 - qb[2];
+        max_white_cells_fourth_quadrant = n * n / 4 - qb[3];
+    }
+
+    // Verificar se em cada quadrante ja temos o numero de brancas
+    // Second quadrant
+    int sum_black = 0;
+    int sum_white = 0;
+    for (int k = 0; k < n / 2; k++)
+    {
+        for (int l = 0; l < n / 2; l++)
+        {
+            if (v[k][l] == 1)
+            {
+                sum_black++;
+            }
+            if (v[k][l] == 0)
+            {
+                sum_white++;
+            }
+        }
+    }
+
+    if (sum_black == qb[1])
+    {
+        fill_quadrant(v, n, 1, 0);
+    }
+
+    if (sum_white == max_white_cells_second_quadrant)
+    {
+        fill_quadrant(v, n, 1, 1);
+    }
+
+    // First quadrant
+    sum_black = 0;
+    sum_white = 0;
+    for (int k = 0; k < n / 2; k++)
+    {
+        for (int l = n / 2; l < n; l++)
+        {
+            if (v[k][l] == 1)
+            {
+                sum_black++;
+            }
+
+            if (v[k][l] == 0)
+            {
+                sum_white++;
+            }
+        }
+    }
+
+    if (sum_black == qb[0])
+    {
+        fill_quadrant(v, n, 0, 0);
+    }
+
+    if (sum_white == max_white_cells_first_quadrant)
+    {
+        fill_quadrant(v, n, 0, 1);
+    }
+
+    // Third quadrant
+    sum_black = 0;
+    sum_white = 0;
+    for (int k = n / 2; k < n; k++)
+    {
+        for (int l = 0; l < n / 2; l++)
+        {
+            if (v[k][l] == 1)
+            {
+                sum_black++;
+            }
+            if (v[k][l] == 0)
+            {
+                sum_white++;
+            }
+        }
+    }
+
+    if (sum_black == qb[2])
+    {
+        fill_quadrant(v, n, 2, 0);
+    }
+    if (sum_white == max_white_cells_third_quadrant)
+    {
+        fill_quadrant(v, n, 2, 1);
+    }
+
+    // Fourth quadrant
+    sum_black = 0;
+    sum_white = 0;
+    for (int k = n / 2; k < n; k++)
+    {
+        for (int l = n / 2; l < n; l++)
+        {
+            if (v[k][l] == 1)
+            {
+                sum_black++;
+            }
+            if (v[k][l] == 0)
+            {
+                sum_white++;
+            }
+        }
+    }
+
+    if (sum_black == qb[3])
+    {
+        fill_quadrant(v, n, 3, 0);
+    }
+    if (sum_white == max_white_cells_fourth_quadrant)
+    {
+        fill_quadrant(v, n, 3, 1);
+    }
 }
 
 bool is_filled_row(vector<vector<int>> &v, int n, int line)
@@ -746,7 +884,7 @@ bool is_filled_quadrant(vector<vector<int>> &v, int n, int quadrant)
 
 bool is_impossivel(vector<vector<int>> &qr, const int n, int linha, int col, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db)
 {
-    // Se a linha esta cheia, podemos verificar com != , se nao, com >
+    // Se a linha esta cheia, podemos verificar com != , se nao, com > aa
     int count = 0;
     int count_transitions = 0;
 
@@ -1588,12 +1726,12 @@ int main()
 
     // redireciona a entrada para um arquivo
     // freopen("testes\\teste_tudo.in", "r", stdin);
-    // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207
+    // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207 - 163
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
     // freopen("testes\\test_help_1.in", "r", stdin);
-    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento  42310 - 28884
-    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790
-    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643 -7761
+    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento       42310 - 28884
+    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790 - 664
+    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643 - 7761 - 6529
     // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392
 
     int T;
@@ -1661,7 +1799,8 @@ int main()
         {
             if (!preprocess(qrcode, N, lb, cb, lt, ct, qb, db))
             {
-                // printqrcode(&qrcode, N);
+                // preprocess(qrcode, N, lb, cb, lt, ct, qb, db);
+                //  printqrcode(&qrcode, N);
                 num_ones = count_black_cells_qrcode(qrcode, N);
                 geraqrcode(qrcode, N, 0, 0, lb, cb, lt, ct, qb, db, num_ones);
             }
