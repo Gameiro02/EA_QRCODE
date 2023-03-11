@@ -1451,6 +1451,51 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         }
     }
 
+    if (count_black_cells_row(qrcode, n, i) > lb[i])
+    {
+        return;
+    }
+
+    if (count_white_cells_row(qrcode, n, i) > n - lb[i])
+    {
+        return;
+    }
+
+    if (count_black_cells_col(qrcode, n, j) > cb[j])
+    {
+        return;
+    }
+
+    if (countTransitionsRow(qrcode, i) > lt[i])
+    {
+        return;
+    }
+
+    if (countTransitionsCol(qrcode, j) > ct[j])
+    {
+        return;
+    }
+
+    if (count_black_cells_diagonal(qrcode, n) > db[0])
+    {
+        return;
+    }
+
+    if (count_white_cells_diagonal(qrcode, n) > n - db[0])
+    {
+        return;
+    }
+
+    if (count_black_cells_antidiagonal(qrcode, n) > db[1])
+    {
+        return;
+    }
+
+    if (count_white_cells_antidiagonal(qrcode, n) > n - db[1])
+    {
+        return;
+    }
+
     // If the line i-1 has the right number of black cells
     if (i > 0 && count_black_cells_row(qrcode, n, i - 1) != lb[i - 1])
     {
@@ -1488,13 +1533,13 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     }
 
     // Check if the already exceeded the number of black cells in the diagonal
-    if (i > 0 && count_black_cells_diagonal(qrcode, n) > db[0])
+    if (count_black_cells_diagonal(qrcode, n) > db[0])
     {
         return;
     }
 
     // Check if the already exceeded the number of white cells in the diagonal
-    if (i > 0 && count_white_cells_diagonal(qrcode, n) > n - db[0])
+    if (count_white_cells_diagonal(qrcode, n) > n - db[0])
     {
         return;
     }
@@ -1795,7 +1840,7 @@ int main()
     // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento       42310 - 28884 - 28816 - 13588
     // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790 - 664 - 652 - 644 - 370
     // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643 - 7761 - 6529 - 6455 - 6454
-    freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392 - 997038 - 992954 - 933123
+    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392 - 997038 - 992954 - 933123 -540336
 
     int T;
     cin >> T;
@@ -1886,7 +1931,7 @@ int main()
                 // printqrcode(&qrcode, N);
             }
         }
-        std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
+        // std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
         GLOBAL = 0;
         test_coluna = 0;
         test_linha = 0;
