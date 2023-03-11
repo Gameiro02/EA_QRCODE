@@ -1401,6 +1401,21 @@ int calcula_quadrados(int n, int quadrante)
     return comprimento * largura;
 }
 
+bool is_full(const vector<vector<int>> &qrcode, const int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (qrcode[i][j] == -1)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const vector<int> &lb, const vector<int> &cb, const vector<int> &lt, const vector<int> &ct, const vector<int> &qb, const vector<int> &db, int sum_black_total)
 {
     // Print the qrcode so far
@@ -1409,7 +1424,7 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     NUM_CELULAS_PROCESSADAS++;
 
     // if the board is full, check if it is a solution and print it if it is
-    if (i == n)
+    if (is_full(qrcode, n))
     {
         if (check(qrcode, n, lb, cb, db, qb, lt, ct))
         {
@@ -1417,6 +1432,19 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
             qrcode_ptr = qrcode;
         }
         return;
+    }
+
+    if (j > 0 && is_filled_collumn(qrcode, n, j - 1))
+    {
+        // Check if the number of black cells in the column is correct
+        if (count_black_cells_col(qrcode, n, j - 1) != cb[j - 1])
+        {
+            return;
+        }
+        if (count_white_cells_col(qrcode, n, j - 1) != n - cb[j - 1])
+        {
+            return;
+        }
     }
 
     // If the line i-1 has the right number of black cells
@@ -1726,13 +1754,13 @@ int main()
 
     // redireciona a entrada para um arquivo
     // freopen("testes\\teste_tudo.in", "r", stdin);
-    // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207 - 163 - 149
+    // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207 - 163 - 149 -147
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
     // freopen("testes\\test_help_1.in", "r", stdin);
-    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento       42310 - 28884
-    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790 - 664 - 652
-    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643 - 7761 - 6529 - 6455
-    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392 - 997038
+    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento       42310 - 28884 - 28816
+    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790 - 664 - 652 - 644
+    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643 - 7761 - 6529 - 6455 - 6454
+    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392 - 997038 - 992954
 
     int T;
     cin >> T;
