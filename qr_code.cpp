@@ -1419,13 +1419,6 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         return;
     }
 
-    // if the row is full, go to the next row
-    if (j == n)
-    {
-        geraqrcode(qrcode, n, i + 1, 0, lb, cb, lt, ct, qb, db, sum_black_total);
-        return;
-    }
-
     // If the line i-1 has the right number of black cells
     if (i > 0 && count_black_cells_row(qrcode, n, i - 1) != lb[i - 1])
     {
@@ -1687,6 +1680,13 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
         }
     }
 
+    // if the row is full, go to the next row
+    if (j == n)
+    {
+        geraqrcode(qrcode, n, i + 1, 0, lb, cb, lt, ct, qb, db, sum_black_total);
+        return;
+    }
+
     // only change the cell if it is equal to -1
     if (qrcode.at(i).at(j) == -1)
     {
@@ -1726,13 +1726,13 @@ int main()
 
     // redireciona a entrada para um arquivo
     // freopen("testes\\teste_tudo.in", "r", stdin);
-    // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207 - 163
+    // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207 - 163 - 149
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
     // freopen("testes\\test_help_1.in", "r", stdin);
     // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento       42310 - 28884
-    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790 - 664
-    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643 - 7761 - 6529
-    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392
+    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790 - 664 - 652
+    // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643 - 7761 - 6529 - 6455
+    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392 - 997038
 
     int T;
     cin >> T;
