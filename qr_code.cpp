@@ -90,6 +90,10 @@ bool check(vector<vector<int>> &qrcode, const int n, const vector<int> &linhas, 
 
         for (int j = 0; j < n; j++)
         {
+            if (qrcode[i][j] == -1)
+            {
+                return false;
+            }
 
             if (qrcode[i][j] == 1)
             {
@@ -1726,7 +1730,38 @@ void geraqrcode(vector<vector<int>> &qrcode, const int n, int i, int j, const ve
     }
     else
     {
-        geraqrcode(qrcode, n, i, j + 1, lb, cb, lt, ct, qb, db, sum_black_total);
+        // Jump to the next cell that is equal to -1
+        // if the line ends, go to the next line
+        // If the we hit the last cell, we are done
+
+        int next_j = j + 1;
+        int next_i = i;
+
+        while (next_j < n && qrcode.at(next_i).at(next_j) != -1)
+        {
+            if (next_j == n - 1)
+            {
+                next_j = 0;
+                next_i++;
+            }
+            else
+            {
+                next_j++;
+            }
+
+            // If we hit the last cell, we check if we have a valid solution
+            if (next_i == n)
+            {
+                if (check(qrcode, n, lb, cb, db, qb, lt, ct))
+                {
+                    GLOBAL++;
+                    qrcode_ptr = qrcode;
+                }
+                return;
+            }
+        }
+
+        geraqrcode(qrcode, n, next_i, next_j, lb, cb, lt, ct, qb, db, sum_black_total);
     }
 }
 
@@ -1757,10 +1792,10 @@ int main()
     // freopen("testes\\test_help_enunciado1.in", "r", stdin); // 309 - 215 - 207 - 163 - 149 -147
     // freopen("testes\\test_help_enunciado2.in", "r", stdin);
     // freopen("testes\\test_help_1.in", "r", stdin);
-    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento       42310 - 28884 - 28816
-    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790 - 664 - 652 - 644
+    // freopen("testes\\test_help_2.in", "r", stdin); // Sem pre processamento       42310 - 28884 - 28816 - 13588
+    // freopen("testes\\test_help_3.in", "r", stdin); // Sem pre processamento    1337707 - 51381 - 998 - 790 - 664 - 652 - 644 - 370
     // freopen("testes\\test_help_4.in", "r", stdin); // Sem pre processamento    2826195 - 36249 - 21151 - 8643 - 7761 - 6529 - 6455 - 6454
-    // freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392 - 997038 - 992954
+    freopen("testes\\test_help_5.in", "r", stdin); // Sem pre  processamento   3091057 - 1522640 - 2045900 - 2011593 - 1136392 - 997038 - 992954 - 933123
 
     int T;
     cin >> T;
@@ -1851,7 +1886,7 @@ int main()
                 // printqrcode(&qrcode, N);
             }
         }
-        // std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
+        std::cout << NUM_CELULAS_PROCESSADAS << std::endl;
         GLOBAL = 0;
         test_coluna = 0;
         test_linha = 0;
